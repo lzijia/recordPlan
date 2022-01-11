@@ -30,12 +30,12 @@
 
         <van-field v-model="planContent"
                    name="planContent"
-                   label="计划目的"
-                   placeholder="计划目的"
+                   label="计划目的/内容"
+                   placeholder="计划目的/内容"
                    rows="5"
                    autosize
                    type="textarea"
-                   :rules="[{ required: true, message: '请输入计划目的' }]" />
+                   :rules="[{ required: true, message: '请输入计划目的/内容' }]" />
 
         <van-field readonly
                    clickable
@@ -45,11 +45,14 @@
                    placeholder="点击选择计划时间类型"
                    @click="showDatetimeTypePicker = true"
                    :rules="[{ required: true, message: '请选择计划时间类型' }]" />
+
         <van-popup v-model:show="showDatetimeTypePicker">
+
           <van-picker show-toolbar
                       :columns="datetimeTypeColumns"
                       @confirm="onConfirmDatetimeType"
                       @cancel="showDatetimeTypePicker=false" />
+
         </van-popup>
 
         <van-field readonly
@@ -58,12 +61,16 @@
                    v-model="planContentTime"
                    label="计划时间选择"
                    placeholder="点击选择计划时间"
-                   @click="showDatetimePicker = true"
+                   @click="selectPlanTime"
                    :rules="[{ required: true, message: '请选择计划时间' }]" />
-        <van-popup v-model:show="showDatetimePicker">
-          <van-datetime-picker type="time"
+
+        <van-popup v-model:show="showDatetimePicker"
+                   :style="{'width':'90%'}">
+          <van-datetime-picker :title="datetimePickerTitle"
+                               :type="datetimePickerType"
                                @confirm="onConfirmDatetime"
                                @cancel="showDatetimePicker = false" />
+
         </van-popup>
 
       </van-cell-group>
@@ -71,7 +78,8 @@
         <van-button round
                     block
                     type="primary"
-                    native-type="submit">
+                    native-type="submit"
+                    :style="{'margin':'0 auto','width':'40%'}">
           提交
         </van-button>
       </div>
@@ -91,7 +99,6 @@ import {
   Picker,
   DatetimePicker,
 } from "vant";
-import { oppositeBoolean } from "../common/enum/boolean";
 import axios from "axios";
 @Options({
   components: {
@@ -103,7 +110,6 @@ import axios from "axios";
     [Popup.name]: Popup,
     [Picker.name]: Picker,
     [DatetimePicker.name]: DatetimePicker,
-    oppositeBoolean,
     axios,
   },
   props: {},
@@ -122,6 +128,9 @@ import axios from "axios";
       datetimeTypeColumnsIndex: "",
       datetimeTypeContent: [],
       planContentTimeType: "",
+      modIndex: "",
+      datetimePickerType: "",
+      datetimePickerTitle: "",
     };
   },
   methods: {
@@ -135,6 +144,11 @@ import axios from "axios";
       this.showPicker = false;
       this.planTypeColumnsIndex = index;
     },
+    selectPlanTime() {
+      if (this.planContentTimeType) {
+        this.showDatetimePicker = true;
+      }
+    },
     onConfirmDatetime(time: string) {
       this.planContentTime = time;
       this.showDatetimePicker = false;
@@ -143,11 +157,57 @@ import axios from "axios";
       this.planContentTimeType = value;
       this.showDatetimeTypePicker = false;
       this.datetimeTypeColumnsIndex = index;
+
+      let datetimeType = this.datetimeTypeContent[index].en_name;
+      this.datetimePickerTitle = this.getDatetimePickerTitle(datetimeType);
+      this.datetimePickerType = this.getDatetimePickerType(datetimeType);
+    },
+    getDatetimePickerType(type: string) {
+      console.log(type);
+      let result = "";
+      switch (type) {
+        case "everyDay":
+          result = "time";
+          break;
+        case "everyMonth":
+          result = "month-day";
+          break;
+        case "everyYear":
+          result = "month-day-time";
+          break;
+        default:
+          result = "";
+          break;
+      }
+      return result;
+    },
+    getDatetimePickerTitle(type: string) {
+      console.log(type);
+      let result = "";
+      switch (type) {
+        case "everyDay":
+          result = "时-分";
+          break;
+        case "everyMonth":
+          result = "month-day";
+          break;
+        case "everyYear":
+          result = "month-day-time";
+          break;
+        default:
+          result = "";
+          break;
+      }
+      return result;
     },
     onSubmit(values: string) {
       let index = 1;
       let haveItem = true;
       while (haveItem) {
+        if (this.modIndex) {
+          index = this.modIndex;
+          break;
+        }
         let item = localStorage.getItem(
           this.datetimeTypeContent[this.datetimeTypeColumnsIndex].en_name +
             index
@@ -222,13 +282,27 @@ import axios from "axios";
         }
       });
     },
+    getExistPlan() {
+      let itemName = this.$route.params.itemName;
+      if (itemName) {
+        let planContent = JSON.parse(localStorage.getItem(itemName) || "");
+        this.planTypeValue = planContent.planType;
+        this.planContent = planContent.planContent;
+        this.planContentTime = planContent.datetime;
+        this.planTypeColumnsIndex = planContent.planTypeId - 1;
+        this.planContentTimeType = planContent.datetimeType;
+        this.datetimeTypeColumnsIndex = planContent.datetimeTypeId - 1;
+        this.modIndex = this.$route.params.itemIndex;
+      }
+    },
   },
   mounted() {
     this.getPlanTypeContent();
     this.getDatetimeType();
+    this.getExistPlan();
   },
 })
-export default class newplan extends Vue {}
+export default class plan extends Vue {}
 </script>
 
 <style  scoped="">

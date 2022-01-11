@@ -1,0 +1,17 @@
+[
+  {
+    "id": "1",
+    "name": "每天",
+    "en_name": "everyDay"
+  },
+  {
+    "id": "2",
+    "name": "每月",
+    "en_name": "everyMonth"
+  },
+  {
+    "id": "3",
+    "name": "每年",
+    "en_name": "everyYear"
+  }
+]
