@@ -1,0 +1,50 @@
+<template>
+  <div class="head">
+    <van-button type="primary"
+                round="true"
+                size="small"
+                @click="goBack"
+                :style="{'float':'left'}">返回</van-button>
+
+    <span>反馈</span>
+  </div>
+  <hr>
+  <van-form @submit="confirm">
+    <van-cell-group inset>
+      <van-field v-model="planType"
+                 label="反馈"
+                 placeholder="请输入反馈内容"
+                 colon=true
+                 :rules="[{ required: true, message: '请输入反馈内容'}]" />
+    </van-cell-group>
+    <van-button round
+                type="primary"
+                size="small"
+                native-type="submit">确定</van-button>
+
+  </van-form>
+</template>
+
+<script lang="ts">
+import { Options, Vue } from "vue-class-component";
+import { Cell, Button, Popup, Form, Field, CellGroup } from "vant";
+@Options({
+  components: {
+    [Cell.name]: Cell,
+    [Button.name]: Button,
+    [Popup.name]: Popup,
+    [Field.name]: Field,
+    [CellGroup.name]: CellGroup,
+    [Form.name]: Form,
+  },
+  props: {},
+  data() {
+    return {};
+  },
+  methods: {},
+})
+export default class feedBack extends Vue {}
+</script>
+
+<style  scoped="">
+</style>
