@@ -1,4 +1,4 @@
- recordplan v1.0.0
+ recordplan v1.1.0
 
 纯前端的计划记录管理app，数据存在app，更安全隐私。
 
